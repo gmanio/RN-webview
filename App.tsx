@@ -2,6 +2,7 @@ import * as React from 'react';
 import { WebView } from 'react-native-webview';
 import { StyleSheet, SafeAreaView, ActivityIndicator, BackHandler } from 'react-native';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import PushNotificator from './PushNotificator';
 
 const App = () => {
   const [canGoBack, setCanGoBack] = React.useState(false);
@@ -11,6 +12,10 @@ const App = () => {
 
   const handleBackPress = () => {
     webviewRef.current!.goBack();
+
+    // if (!canGoBack) {
+    //   alert('더이상 뒤로 갈수 없음 TODO: 종료하기');
+    // }
     return true;
   }
 
@@ -42,6 +47,7 @@ const App = () => {
           setCurrentUrl(navState.url)
         }}
       />
+      <PushNotificator/>
     </SafeAreaView>
   );
 };
