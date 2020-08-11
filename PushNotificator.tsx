@@ -2,8 +2,9 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
 import React, { useState, useEffect, useRef } from 'react';
-import { Text, View, Button, Platform } from 'react-native';
+import { Text, View, Button, Platform, Alert, Linking } from 'react-native';
 import { Subscription } from '@unimodules/core';
+import WebView from 'react-native-webview';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -13,7 +14,11 @@ Notifications.setNotificationHandler({
   })
 });
 
-export default () => {
+type Props = {
+  webviewRef: React.RefObject<WebView>;
+};
+
+export default (props: Props) => {
   const [expoPushToken, setExpoPushToken] = useState<string>('');
   const [notification, setNotification] = useState<Notifications.Notification>();
   const notificationListener = useRef<Subscription>();
@@ -21,22 +26,33 @@ export default () => {
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token: string | undefined) => {
-      token && alert(`push Token ${token}`);
+      console.log(token);
+      
+      // token && Alert.alert(`push Token ${token}`);
       token && setExpoPushToken(token);
     });
 
     notificationListener.current = Notifications.addNotificationReceivedListener((notification: Notifications.Notification) => {
+      debugger;
       setNotification(notification);
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response: Notifications.NotificationResponse) => {
-      alert(response);
+      const url = response.notification.request.content.data.url;
+      Alert.alert(String(url));
+      console.log(url);
+      const redirectTo = 'window.location = "' + url + '"';
+      props?.webviewRef?.current?.injectJavaScript(redirectTo);
     });
 
     return () => {
-      notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current);
-      responseListener.current && responseListener && Notifications.removeNotificationSubscription(responseListener.current);
+      // notificationListener && notificationListener.current && notificationListener.current.remove();
+      // responseListener && responseListener.current && responseListener.current.remove();
     };
+    // return () => {
+    //   notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current);
+    //   responseListener.current && responseListener && Notifications.removeNotificationSubscription(responseListener.current);
+    // };
   }, []);
 
   return (
@@ -46,12 +62,6 @@ export default () => {
         flex: 1,
         alignItems: 'center'
       }}>
-      <Text>Your expo push token: {expoPushToken}</Text>
-      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Title: {notification && notification.request.content.title} </Text>
-        <Text>Body: {notification && notification.request.content.body}</Text>
-        <Text>Data: {notification && JSON.stringify(notification.request.content.data)}</Text>
-      </View>
       <Button
         title='Press to schedule a notification'
         onPress={async () => {
@@ -59,7 +69,7 @@ export default () => {
             content: {
               title: '배민상회에서 보내는 메시지 📬',
               body: '지금 바로 상품을 확인해보세요!!',
-              data: { data: 'goes here' },
+              data: { url: 'goes here' },
             },
             trigger: {
               seconds: 60 * 30,
@@ -85,13 +95,13 @@ async function registerForPushNotificationsAsync () {
     }
 
     if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
+      Alert.alert('Failed to get push token for push notification!');
       return;
     }
 
     token = (await Notifications.getExpoPushTokenAsync()).data;
   } else {
-    alert('Must use physical device for Push Notifications');
+    Alert.alert('Must use physical device for Push Notifications');
   }
 
   if (Platform.OS === 'android') {

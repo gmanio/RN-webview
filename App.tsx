@@ -23,8 +23,11 @@ const App = (props: any) => {
     setCanGoBack(navState.canGoBack);
     setCanGoForward(navState.canGoForward);
     setCurrentUrl(navState.url);
+    debugger;
+    console.dir(navState);
+    
 
-    alert(navState.url);
+    // alert(navState.url);
   };
 
   React.useEffect(() => {
@@ -48,7 +51,7 @@ const App = (props: any) => {
         ref={webviewRef}
         onNavigationStateChange={handleWebViewNavigationStateChange}
       />
-      <PushNotificator/>
+      <PushNotificator webviewRef={webviewRef}/>
     </SafeAreaView>
   );
 };
