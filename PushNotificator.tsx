@@ -10,7 +10,7 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
-  }),
+  })
 });
 
 export default () => {
@@ -20,14 +20,17 @@ export default () => {
   const responseListener = useRef<Subscription>();
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token: string | undefined) => token && setExpoPushToken(token));
+    registerForPushNotificationsAsync().then((token: string | undefined) => {
+      token && alert(`push Token ${token}`);
+      token && setExpoPushToken(token);
+    });
 
     notificationListener.current = Notifications.addNotificationReceivedListener((notification: Notifications.Notification) => {
       setNotification(notification);
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response: Notifications.NotificationResponse) => {
-      console.log(response);
+      alert(response);
     });
 
     return () => {
@@ -39,9 +42,9 @@ export default () => {
   return (
     <View
       style={{
+        maxHeight: 0,
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-around',
+        alignItems: 'center'
       }}>
       <Text>Your expo push token: {expoPushToken}</Text>
       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -61,7 +64,7 @@ export default () => {
             trigger: {
               seconds: 60 * 30,
               repeats: true
-            },
+            }
           });
         }}
       />
@@ -71,19 +74,22 @@ export default () => {
 
 async function registerForPushNotificationsAsync () {
   let token;
+
   if (Constants.isDevice) {
     const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
     let finalStatus = existingStatus;
+
     if (existingStatus !== 'granted') {
       const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
       finalStatus = status;
     }
+
     if (finalStatus !== 'granted') {
       alert('Failed to get push token for push notification!');
       return;
     }
+
     token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log(token);
   } else {
     alert('Must use physical device for Push Notifications');
   }

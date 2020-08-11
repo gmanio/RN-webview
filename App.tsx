@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { WebView } from 'react-native-webview';
+import { WebView, WebViewNavigation } from 'react-native-webview';
 import { StyleSheet, SafeAreaView, ActivityIndicator, BackHandler } from 'react-native';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import PushNotificator from './PushNotificator';
 
-const App = () => {
+const App = (props: any) => {
   const [canGoBack, setCanGoBack] = React.useState(false);
   const [canGoForward, setCanGoForward] = React.useState(false);
   const [currentUrl, setCurrentUrl] = React.useState('');
@@ -19,6 +19,14 @@ const App = () => {
     return true;
   }
 
+  const handleWebViewNavigationStateChange = (navState: WebViewNavigation) => {
+    setCanGoBack(navState.canGoBack);
+    setCanGoForward(navState.canGoForward);
+    setCurrentUrl(navState.url);
+
+    alert(navState.url);
+  };
+
   React.useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
     return () => backHandler.remove();
@@ -28,11 +36,8 @@ const App = () => {
     <SafeAreaView style={styles.container}>
       <WebView
         originWhitelist={['*']}
+        sharedCookiesEnabled={true}
         source={{ uri: 'https://mart.baemin.com' }}
-        automaticallyAdjustContentInsets={false}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        startInLoadingState={true}
         renderLoading={() => (
           <ActivityIndicator
             color='black'
@@ -41,11 +46,7 @@ const App = () => {
           />
         )}
         ref={webviewRef}
-        onNavigationStateChange={(navState) => {
-          setCanGoBack(navState.canGoBack)
-          setCanGoForward(navState.canGoForward)
-          setCurrentUrl(navState.url)
-        }}
+        onNavigationStateChange={handleWebViewNavigationStateChange}
       />
       <PushNotificator/>
     </SafeAreaView>
