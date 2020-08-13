@@ -26,9 +26,6 @@ export default (props: Props) => {
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token: string | undefined) => {
-      console.log(token);
-      
-      // token && Alert.alert(`push Token ${token}`);
       token && setExpoPushToken(token);
     });
 
@@ -46,13 +43,9 @@ export default (props: Props) => {
     });
 
     return () => {
-      // notificationListener && notificationListener.current && notificationListener.current.remove();
-      // responseListener && responseListener.current && responseListener.current.remove();
+      notificationListener && notificationListener.current && notificationListener.current.remove();
+      responseListener && responseListener.current && responseListener.current.remove();
     };
-    // return () => {
-    //   notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current);
-    //   responseListener.current && responseListener && Notifications.removeNotificationSubscription(responseListener.current);
-    // };
   }, []);
 
   return (
