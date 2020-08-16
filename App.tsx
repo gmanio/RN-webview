@@ -1,18 +1,20 @@
 import * as React from 'react';
-import { WebView, WebViewNavigation } from 'react-native-webview';
-import { StyleSheet, SafeAreaView, View, Text, BackHandler, Modal, Button } from 'react-native';
+import { WebView, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview';
+import { StyleSheet, SafeAreaView, View, Text, BackHandler, Modal, Button, Alert } from 'react-native';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import PushNotificator from './PushNotificator';
 
 const App = (props: any) => {
   const [isShowExitModal, setIsShowExitModal] = React.useState(false);
+  const [cookies, setCookies] = React.useState('');
   const [canGoBack, setCanGoBack] = React.useState(false);
   const [canGoForward, setCanGoForward] = React.useState(false);
-  const [currentUrl, setCurrentUrl] = React.useState('');
+  const [currentUrl, setCurrentUrl] = React.useState('https://mart.baemin.com');
   const webviewRef: React.RefObject<WebView> = React.useRef(null);
+  const jsCode = "window.postMessage(document.cookie)";
 
   const handleBackPress = () => {
-
+    Alert.alert(currentUrl);
     if (currentUrl === 'https://mart.baemin.com' || currentUrl === 'https://mart.baemin.com/') {
       setIsShowExitModal(true);
       // BackHandler.exitApp();
@@ -28,6 +30,12 @@ const App = (props: any) => {
     setCurrentUrl(navState.url);
   };
 
+  const handleReceivePostMessage = (event: WebViewMessageEvent) => {
+    const { data } = event.nativeEvent;
+    // const cookies  = data.split(';');
+    setCookies(data);
+  };
+
   React.useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
     return () => backHandler.remove();
@@ -35,10 +43,18 @@ const App = (props: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={{ fontSize: 12 }}>{cookies}</Text>
+      <Text style={{ fontSize: 12 }}>{currentUrl}</Text>
+      <View style={{ marginTop: 10 }}></View>
       <WebView
-        source={{ uri: 'https://mart.baemin.com' }}
         ref={webviewRef}
         onNavigationStateChange={handleWebViewNavigationStateChange}
+        source={{ uri: currentUrl }}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        startInLoadingState={false}
+        injectedJavaScript={jsCode}
+        onMessage={handleReceivePostMessage}
       />
       <Modal
         transparent={true}
@@ -47,7 +63,7 @@ const App = (props: any) => {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Text style={styles.modalText}>앱을 종료하시겠습니까?</Text>
-            <View style={styles.modalButtonWrapper}>
+            <View style={styles.modalButton}>
               <Button
                 title='취소'
                 color='#f194ff'
@@ -93,7 +109,8 @@ const styles = StyleSheet.create({
   },
   modalText: {
     marginBottom: 15,
-    textAlign: 'center'
+    textAlign: 'center',
+    flexDirection: 'row'
   },
   modalButtonWrapper: {
     width: 300,
@@ -104,7 +121,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   modalButton: {
-
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   }
 });
 
