@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "martapp_first",
-    "slug": "martapp_first",
+    "name": "bmmart_prototype",
+    "slug": "bmmart_prototype",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,7 +17,14 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.baemin.baeminmart",
+      "buildNumber": "1.0.0",
       "supportsTablet": true
+    },
+    "android": {
+      "package": "com.baemin.baeminmart",
+      "versionCode": 1,
+      "useNextNotificationsApi": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

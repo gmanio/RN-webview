@@ -4,9 +4,10 @@ import { Alert, BackHandler, SafeAreaView, StyleSheet } from 'react-native';
 import WebView, { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import AsyncStorageHelper from './utils/AsyncStorageHelper';
+import PushNotificator from './PushNotificator';
 
 const App = () => {
-  const HOST = 'https://mart.baemin.com';
+  const [uri, setUri] = React.useState('https://mart.baemin.com');
   const [pathName, setPathName] = React.useState('/');
   const [canGoBack, setCanGoBack] = React.useState(false);
   const canGoBackRef = React.useRef(canGoBack);
@@ -76,11 +77,10 @@ const App = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style='auto'/>
+      <PushNotificator setUri={setUri}/>
       <WebView
         ref={webviewRef}
-        source={{
-          uri: HOST
-        }}
+        source={{ uri }}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         sharedCookiesEnabled={true}
